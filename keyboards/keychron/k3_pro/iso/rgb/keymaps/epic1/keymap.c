@@ -86,16 +86,21 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 #ifdef LEADER_ENABLE
 
-void leader_start_user(void) {
-    // Do something when the leader key is pressed
-}
+LEADER_EXTERNS();
 
-void leader_end_user(void) {
-    // leader_sequence_one_key(KC_L);
-    if (leader_sequence_two_keys(KC_L, KC_S)) { // Leader L S
-        // show_active_layers();
-    } else if (leader_sequence_two_keys(KC_L, KC_T)) { // Leader L T
-        // toggle_active_layers(); // switch on layer toggle map
+void matrix_scan_user(void) {
+    LEADER_DICTIONARY() {
+        leading = false;
+        leader_end();
+
+        // SEQ_ONE_KEY(KC_L) {}
+        SEQ_TWO_KEYS(KC_L, KC_S) {
+            // show_active_layers();
+        }
+        SEQ_TWO_KEYS(KC_L, KC_T) {
+            // toggle_active_layers(); // visually
+        }
+
     }
 }
 
