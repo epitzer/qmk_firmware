@@ -68,7 +68,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 [L_FN] = LAYOUT_iso_85(
      _______,  KC_BRID,  KC_BRIU,  KC_TASK,  KC_FILE,  RGB_VAD,  RGB_VAI,  KC_MPRV,  KC_MPLY,  KC_MNXT,  KC_MUTE,  KC_VOLD,  KC_VOLU,  KC_SCRL,  KC_INS,  RGB_TOG,
      _______,  BT_HST1,  BT_HST2,  BT_HST3,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,
-     RGB_TOG,  RGB_MOD,  RGB_VAI,  RGB_HUI,  RGB_SAI,  RGB_SPI,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,
+     RGB_TOG,  RGB_MOD,  RGB_VAI,  RGB_HUI,  RGB_SAI,  RGB_SPI,  _______,  _______,  _______,  _______,  RGB_M_P,  _______,  _______,  _______,            _______,
      _______,  RGB_RMOD, RGB_VAD,  RGB_HUD,  RGB_SAD,  RGB_SPD,  _______,  _______,  _______,  _______,  _______,  _______,            _______,            _______,
      _______,  _______,  _______,  TG(L_TOP),  _______,  _______,  BAT_LVL, TG(L_NUMP), TG(L_MOUSE),  _______,  _______,  _______,            _______,  _______,  _______,
      _______,  _______,  _______,                                QK_LEAD,                          MO(L_EXTRA),  _______,  _______,  _______,  _______,  _______),
@@ -118,6 +118,45 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
     return true;
 };
+
+
+// use layer_switch_get_layer(keypos_t key)
+
+bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
+    if (get_highest_layer(layer_state) > 0) {
+
+        for (uint8_t row = 0; row < MATRIX_ROWS; ++row) {
+            for (uint8_t col = 0; col < MATRIX_COLS; ++col) {
+                uint8_t index = g_led_config.matrix_co[row][col];
+
+                if (index >= led_min && index < led_max && index != NO_LED
+                    // && keymap_key_to_keycode(layer, (keypos_t){col,row}) > KC_TRNS
+                    ) {
+                    // rgb_matrix_set_color(index, RGB_GREEN);
+                    switch (layer_switch_get_layer((keypos_t){col,row})) {
+                    case L_MAC_BASE | L_MAC_FN:
+                        rgb_matrix_set_color(index, RGB_WHITE); break; // i.e. wrong layer ;-)
+                    case  L_FN:
+                        rgb_matrix_set_color(index, RGB_MAGENTA); break;
+                    case L_EXTRA:
+                        rgb_matrix_set_color(index, RGB_CORAL); break;
+                    case L_MOUSE:
+                        rgb_matrix_set_color(index, RGB_ORANGE); break;
+                    case L_NUMP:
+                        rgb_matrix_set_color(index, RGB_GOLD); break;
+                    case L_TOP:
+                        rgb_matrix_set_color(index, RGB_AZURE); break;
+                    case  L_BASE:
+                    default:
+                        // do nothing, don't disturb effect
+                    }
+                }
+            }
+        }
+    }
+    return false;
+}
+
 
 #ifdef LEADER_ENABLE
 
