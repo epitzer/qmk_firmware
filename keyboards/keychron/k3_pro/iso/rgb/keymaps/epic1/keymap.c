@@ -124,7 +124,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
 bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
     if (get_highest_layer(layer_state) > 0) {
-
         for (uint8_t row = 0; row < MATRIX_ROWS; ++row) {
             for (uint8_t col = 0; col < MATRIX_COLS; ++col) {
                 uint8_t index = g_led_config.matrix_co[row][col];
@@ -133,17 +132,27 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
                     // && keymap_key_to_keycode(layer, (keypos_t){col,row}) > KC_TRNS
                     ) {
                     // rgb_matrix_set_color(index, RGB_GREEN);
-                    switch (layer_switch_get_layer((keypos_t){col,row})) {
+
+                  uint16_t keycode = keymap_key_to_keycode(L_NUMP, (keypos_t){col, row});
+                  switch (layer_switch_get_layer((keypos_t){col,row})) {
                     case L_MAC_BASE | L_MAC_FN:
-                        rgb_matrix_set_color(index, RGB_WHITE); break; // i.e. wrong layer ;-)
+                      rgb_matrix_set_color(index, RGB_WHITE); break; // i.e. wrong layer ;-)
                     case  L_FN:
-                        rgb_matrix_set_color(index, RGB_MAGENTA); break;
+                      if (keycode == KC_SCRL) {
+                        if (host_keyboard_led_state().scroll_lock) {
+                          rgb_matrix_set_color(index, RGB_GREEN);
+                        } else {
+                          rgb_matrix_set_color(index, RGB_RED);
+                        }
+                      } else {
+                        rgb_matrix_set_color(index, RGB_MAGENTA);
+                      }
+                      break;
                     case L_EXTRA:
                         rgb_matrix_set_color(index, RGB_CORAL); break;
                     case L_MOUSE:
                         rgb_matrix_set_color(index, RGB_ORANGE); break;
                     case L_NUMP:
-                        uint16_t keycode = keymap_key_to_keycode(L_NUMP, (keypos_t){col, row});
                         if (keycode == KC_NUM) {
                           if (host_keyboard_led_state().num_lock) {
                             rgb_matrix_set_color(index, RGB_GREEN);
