@@ -4,6 +4,9 @@
 #define LEADER_PER_KEY_TIMING
 #define LEADER_TIMEOUT 300
 
+#define BOTH_SHIFTS_TURN_ON_CAPS_WORD
+// #define DOUBLE_TAP_SHIFT_TURNS_ON_CAPS_WORD
+
 #define MK_COMBINED
 
 // inverted from previous config.h with "///"
