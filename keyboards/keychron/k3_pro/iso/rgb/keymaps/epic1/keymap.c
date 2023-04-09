@@ -30,12 +30,14 @@ enum layers{
   L_MAC_BASE,
   L_MAC_FN,
   L_BASE,
-  L_FN,
-  L_EXTRA,
   L_MOUSE,
   L_NUMP,
+  L_FN,
+  L_EXTRA,
   L_TOP
 };
+
+
 
 enum custom_keycodes {
     EP_CMF2 = SAFE_RANGE,
@@ -58,29 +60,23 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      _______,  _______,  _______,  _______,  _______,  _______,  BAT_LVL,  NK_TOGG,  _______,  _______,  _______,  _______,            _______,  _______,  _______,
      _______,  _______,  _______,                                _______,                                _______,  _______,  _______,  _______,  _______,  _______),
 
+
+#define EP_MCAPS LT(L_MOUSE, KC_CAPS)
+
 [L_BASE] = LAYOUT_iso_85(
      KC_ESC,   KC_F1,    KC_F2,    KC_F3,    KC_F4,    KC_F5,    KC_F6,    KC_F7,    KC_F8,    KC_F9,    KC_F10,   KC_F11,   KC_F12,   KC_PSCR,  KC_DEL,   RGB_MOD,
      KC_GRV,   KC_1,     KC_2,     KC_3,     KC_4,     KC_5,     KC_6,     KC_7,     KC_8,     KC_9,     KC_0,     KC_MINS,  KC_EQL,   KC_BSPC,            KC_HOME,
      KC_TAB,   KC_Q,     KC_W,     KC_E,     KC_R,     KC_T,     KC_Y,     KC_U,     KC_I,     KC_O,     KC_P,     KC_LBRC,  KC_RBRC,  KC_ENT,             KC_END,
-     KC_CAPS,  KC_A,     KC_S,     KC_D,     KC_F,     KC_G,     KC_H,     KC_J,     KC_K,     KC_L,     KC_SCLN,  KC_QUOT,            KC_BSLS,            KC_PGUP,
+     EP_MCAPS, KC_A,     KC_S,     KC_D,     KC_F,     KC_G,     KC_H,     KC_J,     KC_K,     KC_L,     KC_SCLN,  KC_QUOT,            KC_BSLS,            KC_PGUP,
      KC_LSFT,  KC_NUBS,  KC_Z,     KC_X,     KC_C,     KC_V,     KC_B,     KC_N,     KC_M,     KC_COMM,  KC_DOT,   KC_SLSH,            KC_RSFT,  KC_UP,    KC_PGDN,
      KC_LCTL,  KC_LGUI,  KC_LALT,                                KC_SPC,                                 KC_RALT, MO(L_FN),  KC_RCTL,  KC_LEFT,  KC_DOWN,  KC_RGHT),
-
-
-[L_EXTRA] = LAYOUT_iso_85(
-     _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,
-     _______,  DM_PLY1,  DM_PLY2,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,
-     _______,  DM_REC1,  DM_REC2,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,
-     _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,            _______,
-     _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,  _______,  _______,
-     _______,  _______,  _______,                                _______,                                _______,  _______,  _______,  _______,  _______,  _______),
 
 [L_MOUSE] = LAYOUT_iso_85(
      _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,
      _______,  KC_ACL0,  KC_ACL1,  KC_ACL2,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,
      _______,  KC_BTN1,  KC_BTN3,  KC_BTN2,  _______,  _______,  _______,  KC_BTN1,  KC_BTN3,  KC_BTN2,  _______,  _______,  _______,  _______,            _______,
      _______,  _______,  _______,  _______,  _______,  _______,  KC_MS_L,  KC_MS_D,  KC_MS_U,  KC_MS_R,  _______,  _______,            _______,            _______,
-     _______,  _______,  _______,  _______,  _______,  _______,  _______,  KC_WH_U,  KC_WH_D,  _______,  _______,  _______,            _______,  _______,  _______,
+     _______,  _______,  _______,  _______,  _______,  _______,  _______,  KC_WH_D,  KC_WH_U,  _______,  _______,  _______,            _______,  _______,  _______,
      _______,  _______,  _______,                                _______,                                _______,  _______,  _______,  _______,  _______,  _______),
 
 [L_NUMP] = LAYOUT_iso_85(
@@ -99,6 +95,14 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      _______,  _______,  _______, TG(L_TOP), _______,  _______, BAT_LVL,TG(L_NUMP),TG(L_MOUSE),_______,  _______,  _______,            _______,  _______,  _______,
      _______,  _______,  _______,                                QK_LEAD,                            MO(L_EXTRA),  _______,  _______,  _______,  _______,  _______),
 
+[L_EXTRA] = LAYOUT_iso_85(
+     KC_PWR ,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  KC_SYRQ,  _______,  _______,
+     _______,  DM_PLY1,  DM_PLY2,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,
+     _______,  DM_REC1,  DM_REC2,  _______,  QK_RBT,   _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,
+     _______,  _______,  _______,  DB_TOGG,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,            _______,
+     _______,  _______,  _______,  _______,  _______,  _______,  QK_BOOT,  _______,  _______,  _______,  _______,  _______,            _______,  _______,  _______,
+     _______,  _______,  _______,                                _______,                                _______,  _______,  _______,  _______,  _______,  _______),
+
 [L_TOP] = LAYOUT_iso_85(
      _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  EP_CMF2,
      _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,
@@ -107,6 +111,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,  _______,  _______,
      _______,  _______,  _______,                                _______,                                _______,  _______,  _______,  _______,  _______,  _______),
 };
+
+
+bool is_scroll_lock = 0;
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 #ifdef CONSOLE_ENABLE
@@ -119,70 +126,53 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         if (record->event.pressed) {
             SEND_STRING(SS_LCTL(SS_LALT(SS_TAP(X_F2))));
         } else {
-            // when keycode QMKBEST is released
-        }
-        break;
+            // when keycode is released
+        } break;
+    case KC_SCRL:
+        if (record->event.pressed) {
+            is_scroll_lock = !is_scroll_lock;
+        } else {
+            // when keycode is released
+        } break;
     }
     return true;
 };
 
-
-// use layer_switch_get_layer(keypos_t key)
-
 bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
-    if (get_highest_layer(layer_state) > 0) {
         for (uint8_t row = 0; row < MATRIX_ROWS; ++row) {
             for (uint8_t col = 0; col < MATRIX_COLS; ++col) {
                 uint8_t index = g_led_config.matrix_co[row][col];
 
-                if (index >= led_min && index < led_max && index != NO_LED
-                    // && keymap_key_to_keycode(layer, (keypos_t){col,row}) > KC_TRNS
-                    ) {
-                    // rgb_matrix_set_color(index, RGB_GREEN);
+                if (index >= led_min && index < led_max && index != NO_LED) {
 
-                  uint16_t keycode = keymap_key_to_keycode(L_NUMP, (keypos_t){col, row});
-                  switch (layer_switch_get_layer((keypos_t){col,row})) {
-                    case L_MAC_BASE | L_MAC_FN:
-                      rgb_matrix_set_color(index, RGB_WHITE); break; // i.e. wrong layer ;-)
-                    case  L_FN:
-                      if (keycode == KC_SCRL) {
-                        if (host_keyboard_led_state().scroll_lock) {
-                          rgb_matrix_set_color(index, RGB_GREEN);
-                        } else {
-                          rgb_matrix_set_color(index, RGB_RED);
-                        }
-                      } else {
-                        rgb_matrix_set_color(index, RGB_MAGENTA);
-                      }
-                      break;
-                    case L_EXTRA:
-                        rgb_matrix_set_color(index, RGB_CORAL); break;
-                    case L_MOUSE:
-                        rgb_matrix_set_color(index, RGB_ORANGE); break;
-                    case L_NUMP:
-                        if (keycode == KC_NUM) {
-                          if (host_keyboard_led_state().num_lock) {
-                            rgb_matrix_set_color(index, RGB_GREEN);
-                          } else {
-                            rgb_matrix_set_color(index, RGB_RED);
-                          }
-                        } else {
-                          rgb_matrix_set_color(index, RGB_GOLD);
-                        }
-                        break;
-                    case L_TOP:
-                        rgb_matrix_set_color(index, RGB_AZURE); break;
-                    case  L_BASE:
+                  uint16_t layer = layer_switch_get_layer((keypos_t){col,row});
+                  uint16_t keycode = keymap_key_to_keycode(L_BASE, (keypos_t){col, row});
+#ifdef CONSOLE_ENABLE
+                  if (debug_enable) {
+                      uprintf("kc %u, layer %u\n", keycode, layer);
+                  }
+#endif
+                  if ((keycode == KC_LSFT || keycode == KC_RSFT) && is_caps_word_on()) {
+                    rgb_matrix_set_color(index, RGB_BLUE);
+                  } else if (keycode == KC_N && host_keyboard_led_state().num_lock) {
+                    rgb_matrix_set_color(index, RGB_BLUE);
+                  } else if (keycode == KC_PSCR && (is_scroll_lock || host_keyboard_led_state().scroll_lock)) {
+                    rgb_matrix_set_color(index, RGB_BLUE);
+                  } else if (keycode == KC_LSFT && host_keyboard_led_state().caps_lock) {
+                    rgb_matrix_set_color(index, RGB_BLUE);
+                  } else switch (layer) {
+                    case L_MAC_BASE | L_MAC_FN: rgb_matrix_set_color(index, RGB_WHITE); break; // i.e. wrong layer ;-)
+                    case L_FN: rgb_matrix_set_color(index, 0xFF, 0x00, 0x40); break;
+                    case L_EXTRA: rgb_matrix_set_color(index, 0x40, 0x00, 0xFF); break;
+                    case L_MOUSE: rgb_matrix_set_color(index, 0x00, 0xFF, 0x00); break;
+                    case L_NUMP: rgb_matrix_set_color(index, 0xFF, 0xFF, 0xFF); break;
+                    case L_TOP: rgb_matrix_set_color(index, 0xFF, 0xFF, 0xFF); break;
+                    case L_BASE:
                     default:
-                        if (is_caps_word_on()
-                            && (keycode == KC_LSFT || keycode == KC_RSFT)) {
-                          rgb_matrix_set_color(index, RGB_BLUE);
-                        }
-                    }
+                  }
                 }
             }
         }
-    }
     return false;
 }
 
