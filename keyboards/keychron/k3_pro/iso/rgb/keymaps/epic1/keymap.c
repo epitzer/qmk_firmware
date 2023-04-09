@@ -22,6 +22,10 @@
  * fn+space -> leader
  */
 
+// TODO: blinking LED while recording macro https://docs.qmk.fm/#/feature_dynamic_macros?id=user-hooks
+// TODO: indicate startup complete
+// TODO: accelerate init
+
 #include QMK_KEYBOARD_H
 #include "print.h"
 
