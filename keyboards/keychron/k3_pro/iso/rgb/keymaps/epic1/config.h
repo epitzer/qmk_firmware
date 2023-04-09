@@ -7,6 +7,8 @@
 #define DYNAMIC_MACRO_SIZE 256
 
 #define BOTH_SHIFTS_TURNS_ON_CAPS_WORD
+
+// mouse keys accelerated but allow momentary speed setting
 #define MK_COMBINED
 
 // inverted from previous config.h with "///"
