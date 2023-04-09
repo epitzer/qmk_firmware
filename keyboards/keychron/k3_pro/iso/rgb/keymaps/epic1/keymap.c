@@ -23,6 +23,7 @@
  */
 
 #include QMK_KEYBOARD_H
+#include "print.h"
 
 // clang-format off
 enum layers{
@@ -108,6 +109,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 };
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+#ifdef CONSOLE_ENABLE
+    if (debug_enable) {
+      uprintf("KL: kc: 0x%04X, col: %2u, row: %2u, pressed: %u, time: %5u, int: %u, count: %u\n", keycode, record->event.key.col, record->event.key.row, record->event.pressed, record->event.time, record->tap.interrupted, record->tap.count);
+    }
+#endif
     switch (keycode) {
     case EP_CMF2:
         if (record->event.pressed) {
