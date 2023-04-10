@@ -49,7 +49,8 @@ enum layers{
 
 
 enum custom_keycodes {
-    EP_CMF2 = SAFE_RANGE,
+    EP_CMF2 = SAFE_RANGE, /// Control+Meta+F2
+    EP_SHLY, /// show layers
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -100,7 +101,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   _______,  KC_BRID,  KC_BRIU,  KC_TASK,  KC_FILE,  RGB_VAD,  RGB_VAI,  KC_MPRV,  KC_MPLY,  KC_MNXT,  KC_MUTE,  KC_VOLD,  KC_VOLU,  KC_SCRL,  KC_INS,   RGB_TOG,
   _______,  BT_HST1,  BT_HST2,  BT_HST3,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,
   RGB_TOG,  RGB_MOD,  RGB_VAI,  RGB_HUI,  RGB_SAI,  RGB_SPI,  _______,  _______,  _______,  _______,  RGB_M_P,  _______,  _______,  _______,            _______,
-  _______,  RGB_RMOD, RGB_VAD,  RGB_HUD,  RGB_SAD,  RGB_SPD,  _______,  _______,  _______,  _______,  _______,  _______,            _______,            _______,
+  _______,  RGB_RMOD, RGB_VAD,  RGB_HUD,  RGB_SAD,  RGB_SPD,  _______,  _______,  _______,  EP_SHLY,  _______,  _______,            _______,            _______,
   _______,  _______,  _______, TG(L_TOP), _______,  _______, BAT_LVL,TG(L_NUMP),TG(L_MOUSE),_______,  _______,  _______,            _______,  _______,  _______,
   _______,  _______,  _______,                                QK_LEAD,                            MO(L_EXTRA),  _______,  _______,  _______,  _______,  _______),
 
@@ -123,23 +124,15 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 // clang-format on
 bool is_scroll_lock = 0;
+bool show_layers = 0;
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   DEBUG("KL: kc: 0x%04X, col: %2u, row: %2u, pressed: %u, time: %5u, int: %u, count: %u\n",
          keycode, record->event.key.col, record->event.key.row, record->event.pressed, record->event.time, record->tap.interrupted, record->tap.count);
   switch (keycode) {
-  case EP_CMF2:
-    if (record->event.pressed) {
-        SEND_STRING(SS_LCTL(SS_LALT(SS_TAP(X_F2))));
-    } else {
-        // when keycode is released
-    } break;
-  case KC_SCRL:
-    if (record->event.pressed) {
-        is_scroll_lock = !is_scroll_lock;
-    } else {
-        // when keycode is released
-    } break;
+  case EP_CMF2: if (record->event.pressed) SEND_STRING(SS_LCTL(SS_LALT(SS_TAP(X_F2)))); break;
+  case KC_SCRL: if (record->event.pressed) is_scroll_lock = !is_scroll_lock; break;
+  case EP_SHLY: if (record->event.pressed) show_layers = !show_layers; break;
   }
   return true;
 };
@@ -150,9 +143,20 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
       uint8_t index = g_led_config.matrix_co[row][col];
 
       if (index >= led_min && index < led_max && index != NO_LED) {
-
         uint16_t layer = layer_switch_get_layer(MAKE_KEYPOS(row, col));
         uint16_t keycode = keymap_key_to_keycode(L_BASE, MAKE_KEYPOS(row, col));
+        if (show_layers) {
+            if ((keycode == KC_0 && layer_state_is(0)) ||
+                (keycode == KC_1 && layer_state_is(1)) ||
+                (keycode == KC_2 && layer_state_is(2)) ||
+                (keycode == KC_3 && layer_state_is(3)) ||
+                (keycode == KC_4 && layer_state_is(4)) ||
+                (keycode == KC_5 && layer_state_is(5)) ||
+                (keycode == KC_6 && layer_state_is(6)) ||
+                (keycode == KC_7 && layer_state_is(7)) ||
+                (keycode == KC_8 && layer_state_is(8)))
+              rgb_matrix_set_color(index, RGB_GREEN);
+        }
         if ((keycode == KC_LSFT || keycode == KC_RSFT) && is_caps_word_on()) {
           rgb_matrix_set_color(index, RGB_BLUE);
         } else if (keycode == KC_N && host_keyboard_led_state().num_lock) {
