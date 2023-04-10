@@ -153,11 +153,6 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
 
         uint16_t layer = layer_switch_get_layer(MAKE_KEYPOS(row, col));
         uint16_t keycode = keymap_key_to_keycode(L_BASE, MAKE_KEYPOS(row, col));
-        if (keycode == 0) {
-          DEBUG("row/col: %u/%u, index: %u, kc: %u, layer %u\n", row, col, index, keycode, layer);
-          keycode = keymap_key_to_keycode(layer, MAKE_KEYPOS(row, col));
-          DEBUG("row/col: %u/%u, index: %u, kc: %u, layer %u\n", row, col, index, keycode, layer);
-        }
         if ((keycode == KC_LSFT || keycode == KC_RSFT) && is_caps_word_on()) {
           rgb_matrix_set_color(index, RGB_BLUE);
         } else if (keycode == KC_N && host_keyboard_led_state().num_lock) {
