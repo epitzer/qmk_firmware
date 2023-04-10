@@ -1,8 +1,8 @@
 VIA_ENABLE = yes
-LEADER_ENABLE = yes
+# LEADER_ENABLE = yes
 DYNAMIC_MACRO_ENABLE = yes
 MOUSEKEY_ENABLE = yes
 # LTO_ENABLE = yes # produces warning
 # COMBO_ENABLE = yes
 CAPS_WORD_ENABLE = yes
-# CONSOLE_ENABLE = yes
+CONSOLE_ENABLE = yes
