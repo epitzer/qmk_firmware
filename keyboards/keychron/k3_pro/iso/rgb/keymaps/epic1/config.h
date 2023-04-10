@@ -9,8 +9,14 @@
 
 #define BOTH_SHIFTS_TURNS_ON_CAPS_WORD
 
-// mouse keys accelerated but allow momentary speed setting
-#define MK_COMBINED
+#define MOUSEKEY_INERTIA
+#define MOUSEKEY_DELAY 150 // Delay between pressing a movement key and cursor movement
+#define MOUSEKEY_INTERVAL 16 // Time between cursor movements in milliseconds (16 = 60fps)
+#define MOUSEKEY_MAX_SPEED 32 // Maximum cursor speed at which acceleration stops
+#define MOUSEKEY_TIME_TO_MAX 32 // Number of frames until maximum cursor speed is reached
+#define MOUSEKEY_FRICTION 6 // How quickly the cursor stops after releasing a key
+#define MOUSEKEY_MOVE_DELTA 1 // How much to move on first frame (1 strongly recommended)
+
 
 #define RGB_MATRIX_DEFAULT_MODE RGB_MATRIX_SOLID_COLOR
 #define RGB_MATRIX_DEFAULT_HUE 0
