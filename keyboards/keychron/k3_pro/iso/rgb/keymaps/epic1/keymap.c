@@ -51,8 +51,8 @@ enum layers{
 
 
 enum custom_keycodes {
-    EP_CMF2 = SAFE_RANGE, /// Control+Meta+F2
-    EP_SHLY, /// show layers
+  EP_CMF2 = SAFE_RANGE, /// Control+Meta+F2
+  EP_SHLY, /// show layers
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -206,3 +206,7 @@ void matrix_scan_user(void) {
 }
 
 #endif
+
+/* Local Variables: */
+/* c-basic-offset: 2 */
+/* End: */
