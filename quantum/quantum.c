@@ -267,6 +267,9 @@ bool process_record_quantum(keyrecord_t *record) {
             // Must run asap to ensure all keypresses are recorded.
             process_dynamic_macro(keycode, record) &&
 #endif
+#if defined(EPIC_MACRO_ENABLE)
+            process_epic_macro(keycode, record) &&
+#endif
 #if defined(AUDIO_ENABLE) && defined(AUDIO_CLICKY)
             process_clicky(keycode, record) &&
 #endif
