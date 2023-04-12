@@ -508,5 +508,154 @@
                 "AC_TOGG"
             ]
         }
+
+        "0x7C77": {
+            "group": "quantum",
+            "key": "QK_EPIC_MACRO_RECORD_START_0",
+            "aliases": [
+                "EM_REC0"
+            ]
+        },
+        "0x7C78": {
+            "group": "quantum",
+            "key": "QK_EPIC_MACRO_RECORD_START_1",
+            "aliases": [
+                "EM_REC1"
+            ]
+        },
+        "0x7C79": {
+            "group": "quantum",
+            "key": "QK_EPIC_MACRO_RECORD_START_2",
+            "aliases": [
+                "EM_REC2"
+            ]
+        },
+        "0x7C7A": {
+            "group": "quantum",
+            "key": "QK_EPIC_MACRO_RECORD_START_3",
+            "aliases": [
+                "EM_REC3"
+            ]
+        },
+        "0x7C7B": {
+            "group": "quantum",
+            "key": "QK_EPIC_MACRO_RECORD_START_4",
+            "aliases": [
+                "EM_REC4"
+            ]
+        },
+        "0x7C7C": {
+            "group": "quantum",
+            "key": "QK_EPIC_MACRO_RECORD_START_5",
+            "aliases": [
+                "EM_REC5"
+            ]
+        },
+        "0x7C7D": {
+            "group": "quantum",
+            "key": "QK_EPIC_MACRO_RECORD_START_6",
+            "aliases": [
+                "EM_REC6"
+            ]
+        },
+        "0x7C7E": {
+            "group": "quantum",
+            "key": "QK_EPIC_MACRO_RECORD_START_7",
+            "aliases": [
+                "EM_REC7"
+            ]
+        },
+        "0x7C7F": {
+            "group": "quantum",
+            "key": "QK_EPIC_MACRO_RECORD_START_8",
+            "aliases": [
+                "EM_REC8"
+            ]
+        },
+        "0x7C80": {
+            "group": "quantum",
+            "key": "QK_EPIC_MACRO_RECORD_START_9",
+            "aliases": [
+                "EM_REC9"
+            ]
+        },
+        "0x7C81": {
+            "group": "quantum",
+            "key": "QK_EPIC_MACRO_RECORD_STOP",
+            "aliases": [
+                "EM_RSTP"
+            ]
+        },
+        "0x7C82": {
+            "group": "quantum",
+            "key": "QK_EPIC_MACRO_PLAY_0",
+            "aliases": [
+                "EM_PLY0"
+            ]
+        },
+        "0x7C83": {
+            "group": "quantum",
+            "key": "QK_EPIC_MACRO_PLAY_1",
+            "aliases": [
+                "EM_PLY1"
+            ]
+        },
+        "0x7C84": {
+            "group": "quantum",
+            "key": "QK_EPIC_MACRO_PLAY_2",
+            "aliases": [
+                "EM_PLY2"
+            ]
+        },
+        "0x7C85": {
+            "group": "quantum",
+            "key": "QK_EPIC_MACRO_PLAY_3",
+            "aliases": [
+                "EM_PLY3"
+            ]
+        },
+        "0x7C86": {
+            "group": "quantum",
+            "key": "QK_EPIC_MACRO_PLAY_4",
+            "aliases": [
+                "EM_PLY4"
+            ]
+        },
+        "0x7C87": {
+            "group": "quantum",
+            "key": "QK_EPIC_MACRO_PLAY_5",
+            "aliases": [
+                "EM_PLY5"
+            ]
+        },
+        "0x7C88": {
+            "group": "quantum",
+            "key": "QK_EPIC_MACRO_PLAY_6",
+            "aliases": [
+                "EM_PLY6"
+            ]
+        },
+        "0x7C89": {
+            "group": "quantum",
+            "key": "QK_EPIC_MACRO_PLAY_7",
+            "aliases": [
+                "EM_PLY7"
+            ]
+        },
+        "0x7C9A": {
+            "group": "quantum",
+            "key": "QK_EPIC_MACRO_PLAY_8",
+            "aliases": [
+                "EM_PLY8"
+            ]
+        },
+        "0x7C9B": {
+            "group": "quantum",
+            "key": "QK_EPIC_MACRO_PLAY_9",
+            "aliases": [
+                "eM_PLY9"
+            ]
+        },
+
     }
 }

@@ -195,6 +195,10 @@ extern layer_state_t layer_state;
 #    include "process_dynamic_macro.h"
 #endif
 
+#ifdef EPIC_MACRO_ENABLE
+#    include "process_epic_macro.h"
+#endif
+
 #ifdef SECURE_ENABLE
 #    include "secure.h"
 #    include "process_secure.h"

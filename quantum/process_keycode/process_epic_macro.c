@@ -53,19 +53,20 @@ __attribute__((weak)) bool epic_macro_valid_key_user(uint16_t keycode, keyrecord
 typedef struct {
   uint8_t len;
   keyrecord_t *keys;
-  uint8_t *delays;
+  uint16_t *delays_ms; // max 64 seconds
 } macro_t;
 
 static macro_t *macros[EPIC_MACRO_COUNT];
 
 static keyrecord_t static_keys[EPIC_MACRO_SIZE];
-static uint8_t static_delays[EPIC_MACRO_SIZE];
+static uint16_t static_delays_ms[EPIC_MACRO_SIZE];
 static macro_t static_macro = {
   .len = 0,
   .keys = static_keys,
-  .delays = static_delays
+  .delays_ms = static_delays_ms
 };
 
+static systime_t current_macro_time = 0;
 static macro_t *current_macro = 0;
 static int8_t current_macro_nr = -1;
 
@@ -75,7 +76,8 @@ bool epic_macro_active(uint8_t macro_nr) {
 
 void epic_macro_record_start(uint8_t macro_nr) {
     if (macro_nr >= EPIC_MACRO_COUNT) return;
-    dprintf("epic macro recording: started for macro nr %u\n", macro_nr);
+    current_macro_time = chVTGetTimeStamp();
+    dprintf("epic macro recording: started for macro nr %u at %u\n", macro_nr);
 
     epic_macro_record_start_user(macro_nr);
 
@@ -98,7 +100,7 @@ void epic_macro_play(uint8_t macro_nr) {
     macro_t *m = macros[macro_nr];
     for (uint8_t i = 0; i < m->len; i++) {
       process_record(&m->keys[i]);
-      wait_ms(&m->delays[i]);
+      wait_ms(TIME_MS2I(m->delays_ms[i]));
     }
 
     clear_keyboard();
@@ -110,6 +112,7 @@ void epic_macro_play(uint8_t macro_nr) {
 
 void epic_macro_record_key(keyrecord_t *record) {
     if (current_macro == 0) return;
+    systime_t now = chVTGetSystemTime();
     /* If we've just started recording, ignore all the key releases. */
     if (!record->event.pressed && current_macro->len == 0) {
         dprintln("epic macro: ignoring a leading key-up event");
@@ -118,15 +121,17 @@ void epic_macro_record_key(keyrecord_t *record) {
 
     if (current_macro->len < EPIC_MACRO_SIZE) {
         current_macro->keys[current_macro->len] = *record;
+        current_macro->delays_ms[current_macro->len] = TIME_I2MS(chTimeDiffX(current_macro_time, now));
         current_macro->len++;
     } else {
         epic_macro_record_key_user(current_macro_nr, record);
     }
+    current_macro_time = now;
 
     dprintf("epic macro: slot %d length: %d/%d\n", current_macro_nr, current_macro->len, EPIC_MACRO_SIZE);
 }
 
-void epic_macro_record_end(keyrecord_t *macro_buffer, keyrecord_t *macro_pointer, int8_t direction, keyrecord_t **macro_end) {
+void epic_macro_record_end(void) {
     /* Do not save the keys being held when stopping the recording,
      * i.e. the keys used to access the layer DM_RSTP is on.
      */
@@ -142,9 +147,9 @@ void epic_macro_record_end(keyrecord_t *macro_buffer, keyrecord_t *macro_pointer
     m = malloc(sizeof(macro_t));
     m->len = len;
     m->keys = malloc(sizeof(keyrecord_t)*len);
-    m->delays = malloc(sizeof(keyrecord_t)*len);
+    m->delays_ms = malloc(sizeof(keyrecord_t)*len);
     memcpy(m->keys, current_macro->keys, sizeof(keyrecord_t)*len);
-    memcpy(m->delays, current_macro->delays, sizeof(uint8_t)*len);
+    memcpy(m->delays_ms, current_macro->delays_ms, sizeof(uint8_t)*len);
     macros[current_macro_nr] = m;
     current_macro = 0;
     current_macro_nr = -1;
@@ -179,7 +184,6 @@ bool process_epic_macro(uint16_t keycode, keyrecord_t *record) {
                 case QK_EPIC_MACRO_RECORD_START_7: epic_macro_record_start(7); return false;
                 case QK_EPIC_MACRO_RECORD_START_8: epic_macro_record_start(8); return false;
                 case QK_EPIC_MACRO_RECORD_START_9: epic_macro_record_start(9); return false;
-                case QK_EPIC_MACRO_RECORD_START_0: epic_macro_record_start(0); return false;
                 case QK_EPIC_MACRO_PLAY_0: epic_macro_play(0); return false;
                 case QK_EPIC_MACRO_PLAY_1: epic_macro_play(1); return false;
                 case QK_EPIC_MACRO_PLAY_2: epic_macro_play(2); return false;
@@ -205,13 +209,12 @@ bool process_epic_macro(uint16_t keycode, keyrecord_t *record) {
             case QK_EPIC_MACRO_RECORD_START_7:
             case QK_EPIC_MACRO_RECORD_START_8:
             case QK_EPIC_MACRO_RECORD_START_9:
-            case QK_EPIC_MACRO_RECORD_START_0:
             case QK_EPIC_MACRO_RECORD_STOP:
                 /* Stop the macro recording. */
                 if (record->event.pressed ^ (keycode != QK_EPIC_MACRO_RECORD_STOP)) { /* Ignore the initial release
                                                                                           * just after the recording
                                                                                           * starts for DM_RSTP. */
-                    epic_macro_record_end(macro_nr);
+                    epic_macro_record_end();
                 }
                 return false;
 #ifdef EPIC_MACRO_NO_NESTING
@@ -223,7 +226,7 @@ bool process_epic_macro(uint16_t keycode, keyrecord_t *record) {
             default:
                 if (epic_macro_valid_key_user(keycode, record)) {
                     /* Store the key in the macro buffer and process it normally. */
-                    epic_macro_record_key(macro_nr, record);
+                    epic_macro_record_key(record);
                 }
                 return true;
                 break;
