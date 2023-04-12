@@ -56,7 +56,7 @@ typedef struct {
   uint16_t *delays_ms; // max 64 seconds
 } macro_t;
 
-static macro_t *macros[EPIC_MACRO_COUNT];
+static macro_t *macros[EPIC_MACRO_COUNT] = {0};
 
 static keyrecord_t static_keys[EPIC_MACRO_SIZE];
 static uint16_t static_delays_ms[EPIC_MACRO_SIZE];
@@ -77,7 +77,7 @@ bool epic_macro_active(uint8_t macro_nr) {
 void epic_macro_record_start(uint8_t macro_nr) {
     if (macro_nr >= EPIC_MACRO_COUNT) return;
     current_macro_time = chVTGetTimeStamp();
-    dprintf("epic macro recording: started for macro nr %u at %u\n", macro_nr);
+    dprintf("epic macro recording: started for macro nr %u\n", macro_nr);
 
     epic_macro_record_start_user(macro_nr);
 
@@ -99,8 +99,14 @@ void epic_macro_play(uint8_t macro_nr) {
 
     macro_t *m = macros[macro_nr];
     for (uint8_t i = 0; i < m->len; i++) {
+      dprintf("epic macro: step %u, key %d/%d, delay %ums\n", i, m->keys[i].event.key.col, m->keys[i].event.key.row, m->delays_ms[i]);
+      dprintln("epic macro: sending key...");
       process_record(&m->keys[i]);
-      wait_ms(TIME_MS2I(m->delays_ms[i]));
+      if (i < m->len) {
+        dprintln("epic macro: waiting...");
+        wait_ms(m->delays_ms[i]);
+      }
+      dprintln("epic macro: done");
     }
 
     clear_keyboard();
@@ -121,7 +127,14 @@ void epic_macro_record_key(keyrecord_t *record) {
 
     if (current_macro->len < EPIC_MACRO_SIZE) {
         current_macro->keys[current_macro->len] = *record;
-        current_macro->delays_ms[current_macro->len] = TIME_I2MS(chTimeDiffX(current_macro_time, now));
+        if (current_macro->len > 0) {
+          current_macro->delays_ms[current_macro->len-1] = TIME_I2MS(chTimeDiffX(current_macro_time, now));
+        }
+        dprintf("epic macro: step %u, key %d/%d, delay %ums\n",
+                current_macro->len,
+                current_macro->keys[current_macro->len].event.key.col,
+                current_macro->keys[current_macro->len].event.key.row,
+                current_macro->len == 0 ? 0 : current_macro->delays_ms[current_macro->len-1]);
         current_macro->len++;
     } else {
         epic_macro_record_key_user(current_macro_nr, record);
@@ -136,20 +149,21 @@ void epic_macro_record_end(void) {
      * i.e. the keys used to access the layer DM_RSTP is on.
      */
     uint8_t len = current_macro->len;
-    while (len > 0 && current_macro->keys[len].event.pressed) {
+    while (len > 0 && current_macro->keys[len-1].event.pressed) {
         dprintln("epic macro: trimming a trailing key-down event");
         len--;
     }
 
-    dprintf("epic macro: slot %d saved, length: %d\n", current_macro_nr, current_macro->len, EPIC_MACRO_SIZE);
+    dprintf("epic macro: done, length: %d/%d, copying to slot %d\n", len, EPIC_MACRO_SIZE, current_macro_nr);
 
-    macro_t *m = macros[current_macro_nr] = malloc(sizeof(macro_t));
-    m = malloc(sizeof(macro_t));
+    macro_t *m = malloc(sizeof(macro_t));
     m->len = len;
     m->keys = malloc(sizeof(keyrecord_t)*len);
-    m->delays_ms = malloc(sizeof(keyrecord_t)*len);
+    m->delays_ms = malloc(sizeof(uint16_t)*len);
     memcpy(m->keys, current_macro->keys, sizeof(keyrecord_t)*len);
-    memcpy(m->delays_ms, current_macro->delays_ms, sizeof(uint8_t)*len);
+    memcpy(m->delays_ms, current_macro->delays_ms, sizeof(uint16_t)*len);
+    if (macros[current_macro_nr] != 0)
+      free(macros[current_macro_nr]);
     macros[current_macro_nr] = m;
     current_macro = 0;
     current_macro_nr = -1;
