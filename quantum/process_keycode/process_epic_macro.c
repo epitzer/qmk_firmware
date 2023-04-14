@@ -243,9 +243,7 @@ bool process_epic_macro(uint16_t keycode, keyrecord_t *record) {
                     epic_macro_record_key(record);
                 }
                 return true;
-                break;
         }
     }
-
     return true;
 }
