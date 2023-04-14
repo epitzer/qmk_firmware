@@ -52,6 +52,7 @@ enum layers{
 enum custom_keycodes {
   EP_CMF2 = SAFE_RANGE, /// Control+Meta+F2
   EP_SHLY, /// show layers
+  EP_FSH, /// toggle force shift
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -111,7 +112,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   _______,  KC_BRID,  KC_BRIU,  KC_TASK,  KC_FILE,  RGB_VAD,  RGB_VAI,  KC_MPRV,  KC_MPLY,  KC_MNXT,  KC_MUTE,  KC_VOLD,  KC_VOLU,  KC_SCRL,  KC_INS,   EM_REC2,
   _______,  BT_HST1,  BT_HST2,  BT_HST3,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,
   RGB_TOG,  _______,  _______,  RGB_HUI,  RGB_SAI,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,
-  _______,  _______,  _______,  RGB_HUD,  RGB_SAD,  _______,  _______,  _______,  _______,  EP_SHLY,  _______,  _______,            _______,            _______,
+  _______,  _______,  EP_FSH,   RGB_HUD,  RGB_SAD,  _______,  _______,  _______,  _______,  EP_SHLY,  _______,  _______,            _______,            _______,
   _______,  _______,  _______,  _______,  _______,  _______,  BAT_LVL,TG(L_NUMP), _______,  _______,  _______,  _______,            _______,  _______,  _______,
   _______,  _______,  _______,                                QK_LEAD,                            MO(L_EXTRA),  _______,  _______,  _______,  _______,  _______),
 
@@ -128,14 +129,46 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 // clang-format on
 bool is_scroll_lock = 0;
 bool show_layers = 0;
+bool left_shift_active = 0;
+bool right_shift_active = 0;
+bool force_shift_sides = 0;
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   DEBUG("KL: kc: 0x%04X, col: %2u, row: %2u, pressed: %u, time: %5u, int: %u, count: %u\n",
          keycode, record->event.key.col, record->event.key.row, record->event.pressed, record->event.time, record->tap.interrupted, record->tap.count);
   switch (keycode) {
       // case EP_CMF2: if (record->event.pressed) SEND_STRING(SS_LCTL(SS_LALT(SS_TAP(X_F2)))); break;
-  case KC_SCRL: if (record->event.pressed) is_scroll_lock = !is_scroll_lock; break;
-  case EP_SHLY: if (record->event.pressed) show_layers = !show_layers; break;
+  case KC_SCRL: if (record->event.pressed) is_scroll_lock = !is_scroll_lock; return true;
+  case EP_SHLY: if (record->event.pressed) show_layers = !show_layers; return true;
+  case EP_FSH: if (record->event.pressed) force_shift_sides = !force_shift_sides; return false; // toggle and done
+  case KC_LSFT: left_shift_active = record->event.pressed; return true;
+  case KC_RSFT: right_shift_active = record->event.pressed; return true;
+  }
+  if (force_shift_sides) {
+      if (left_shift_active) {
+          switch (keycode) {
+          case KC_1: case KC_2: case KC_3: case KC_4:
+          case KC_Q: case KC_W: case KC_E: case KC_R:
+          case KC_A: case KC_S: case KC_D: case KC_F:
+          case KC_Z: case KC_X: case KC_C: case KC_V:
+              DEBUG("suppressing left key while holding left shift, use right shift instead\n");
+              return false;
+          default:
+              return true;
+          }
+      }
+      if (right_shift_active) {
+          switch (keycode) {
+          case KC_7: case KC_8: case KC_9: case KC_0: case KC_MINS: case KC_EQL:
+          case KC_U: case KC_I: case KC_O: case KC_P: case KC_LBRC: case KC_RBRC:
+          case KC_J: case KC_K: case KC_L: case KC_SCLN: case KC_QUOT:
+          case KC_M: case KC_COMM: case KC_DOT: case KC_SLSH:
+              DEBUG("suppressing right key while holding right shift, use left shift instead\n");
+              return false;
+          default:
+              return true;
+          }
+      }
   }
   return true;
 };
