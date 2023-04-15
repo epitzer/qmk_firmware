@@ -70,6 +70,18 @@ static systime_t current_macro_time = 0;
 static macro_t *current_macro = 0;
 static int8_t current_macro_nr = -1;
 
+static uint16_t fixed_delay_ms = 1;
+
+uint8_t epic_macro_get_fixed_delay(void) {
+  return fixed_delay_ms;
+}
+
+void epic_macro_set_fixed_delay_off(void) { fixed_delay_ms = 0;}
+void epic_macro_set_fixed_delay_1ms(void) { fixed_delay_ms = 1; }
+void epic_macro_set_fixed_delay_25ms(void) { fixed_delay_ms = 25; }
+void epic_macro_set_fixed_delay_50ms(void) { fixed_delay_ms = 50; }
+void epic_macro_set_fixed_delay_100ms(void) { fixed_delay_ms = 100; }
+
 bool epic_macro_active(uint8_t macro_nr) {
   return macros[macro_nr] != 0;
 }
@@ -127,14 +139,15 @@ void epic_macro_record_key(keyrecord_t *record) {
 
     if (current_macro->len < EPIC_MACRO_SIZE) {
         current_macro->keys[current_macro->len] = *record;
+        uint16_t delay = fixed_delay_ms == 0 ? TIME_I2MS(chTimeDiffX(current_macro_time, now)) : fixed_delay_ms;
         if (current_macro->len > 0) {
-          current_macro->delays_ms[current_macro->len-1] = TIME_I2MS(chTimeDiffX(current_macro_time, now));
+          current_macro->delays_ms[current_macro->len-1] = delay;
         }
         dprintf("epic macro: step %u, key %d/%d, delay %ums\n",
                 current_macro->len,
                 current_macro->keys[current_macro->len].event.key.col,
                 current_macro->keys[current_macro->len].event.key.row,
-                current_macro->len == 0 ? 0 : current_macro->delays_ms[current_macro->len-1]);
+                current_macro->len == 0 ? 0 : delay);
         current_macro->len++;
     } else {
         epic_macro_record_key_user(current_macro_nr, record);
