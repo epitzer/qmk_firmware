@@ -193,23 +193,26 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
                 (keycode == KC_8 && layer_state_is(8)))
               rgb_matrix_set_color(index, RGB_GREEN);
         }
-        if ((keycode == KC_LSFT || keycode == KC_RSFT) && is_caps_word_on()) {
-          rgb_matrix_set_color(index, RGB_BLUE);
-        } else if (keycode == KC_N && host_keyboard_led_state().num_lock) {
-          rgb_matrix_set_color(index, RGB_BLUE);
-        } else if (keycode == KC_PSCR && (is_scroll_lock || host_keyboard_led_state().scroll_lock)) {
-          rgb_matrix_set_color(index, RGB_BLUE);
-        } else if (keycode == KC_LSFT && host_keyboard_led_state().caps_lock) {
-          rgb_matrix_set_color(index, RGB_BLUE);
-        } else switch (layer) {
+            switch (layer) {
           case L_MAC_BASE | L_MAC_FN: rgb_matrix_set_color(index, RGB_WHITE); break; // i.e. wrong layer ;-)
           case L_FN: rgb_matrix_set_color(index, 0xFF, 0x00, 0x40); break;
           case L_EXTRA: rgb_matrix_set_color(index, 0x40, 0x00, 0xFF); break;
           case L_MOUSE: rgb_matrix_set_color(index, 0x00, 0xFF, 0x00); break;
           case L_NAV: rgb_matrix_set_color(index, 0xFF, 0xFF, 0xFF); break;
           case L_NUMP: rgb_matrix_set_color(index, 0xFF, 0xFF, 0xFF); break;
-              // case L_BASE: // do nothing
-              // default:
+          case L_BASE: // fall through
+          default: // show indicators
+            if ((keycode == KC_LSFT || keycode == KC_RSFT) && is_caps_word_on()) {
+                rgb_matrix_set_color(index, RGB_BLUE);
+            } else if (keycode == KC_N && host_keyboard_led_state().num_lock) {
+                rgb_matrix_set_color(index, RGB_BLUE);
+            } else if (keycode == KC_PSCR && (is_scroll_lock || host_keyboard_led_state().scroll_lock)) {
+                rgb_matrix_set_color(index, RGB_BLUE);
+            } else if (keycode == KC_LSFT && host_keyboard_led_state().caps_lock) {
+                rgb_matrix_set_color(index, RGB_BLUE);
+            } else if (keycode == KC_S && force_shift_sides) {
+                rgb_matrix_set_color(index, RGB_BLUE);
+            }
         }
       }
     }
