@@ -50,9 +50,10 @@ enum layers{
 };
 
 enum custom_keycodes {
-  EP_CMF2 = SAFE_RANGE, /// Control+Meta+F2
+  EP_CMF2 = NEW_SAFE_RANGE, /// Control+Meta+F2
   EP_SHLY, /// show layers
-  EP_FSH, /// toggle force shift
+  EP_STSH, /// toggle strict shift
+  EP_STCTL /// toggle strict control
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -112,8 +113,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   _______,  KC_BRID,  KC_BRIU,  KC_TASK,  KC_FILE,  RGB_VAD,  RGB_VAI,  KC_MPRV,  KC_MPLY,  KC_MNXT,  KC_MUTE,  KC_VOLD,  KC_VOLU,  KC_SCRL,  KC_INS,   EM_REC2,
   _______,  BT_HST1,  BT_HST2,  BT_HST3,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,
   RGB_TOG,  _______,  _______,  RGB_HUI,  RGB_SAI,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,
-  _______,  _______,  EP_FSH,   RGB_HUD,  RGB_SAD,  _______,  _______,  _______,  _______,  EP_SHLY,  _______,  _______,            _______,            _______,
-  _______,  _______,  _______,  _______,  _______,  _______,  BAT_LVL,TG(L_NUMP), _______,  _______,  _______,  _______,            _______,  _______,  _______,
+  _______,  _______,  EP_STSH,  RGB_HUD,  RGB_SAD,  _______,  _______,  _______,  _______,  EP_SHLY,  _______,  _______,            _______,            _______,
+  _______,  _______,  _______,  _______,  EP_STCTL, _______,  BAT_LVL,TG(L_NUMP), _______,  _______,  _______,  _______,            _______,  _______,  _______,
   _______,  _______,  _______,                                QK_LEAD,                            MO(L_EXTRA),  _______,  _______,  _______,  _______,  _______),
 
 [L_EXTRA] = LAYOUT_iso_85(
@@ -127,11 +128,17 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 
 // clang-format on
-bool is_scroll_lock = 0;
-bool show_layers = 0;
-bool left_shift_active = 0;
-bool right_shift_active = 0;
-bool force_shift_sides = 0;
+static bool is_scroll_lock = 0;
+static bool show_layers = 0;
+static bool left_shift_active = 0;
+static bool right_shift_active = 0;
+static bool left_control_active = 0;
+static bool right_control_active = 0;
+static bool strict_shift = 0;
+static bool strict_control = 0;
+
+static uint16_t blink_timer = 0;
+static bool show_error_with_blink = false;
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   DEBUG("KL: kc: 0x%04X, col: %2u, row: %2u, pressed: %u, time: %5u, int: %u, count: %u\n",
@@ -140,30 +147,41 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       // case EP_CMF2: if (record->event.pressed) SEND_STRING(SS_LCTL(SS_LALT(SS_TAP(X_F2)))); break;
   case KC_SCRL: if (record->event.pressed) is_scroll_lock = !is_scroll_lock; return true;
   case EP_SHLY: if (record->event.pressed) show_layers = !show_layers; return true;
-  case EP_FSH: if (record->event.pressed) force_shift_sides = !force_shift_sides; return false; // toggle and done
+  case EP_STSH: if (record->event.pressed) strict_shift = !strict_shift; return false; // toggle and done
+  case EP_STCTL: if (record->event.pressed) strict_control = !strict_control; return false; // toggle and done
   case KC_LSFT: left_shift_active = record->event.pressed; return true;
   case KC_RSFT: right_shift_active = record->event.pressed; return true;
+  case KC_LCTL: left_control_active = record->event.pressed; return true;
+  case KC_RCTL: right_control_active = record->event.pressed; return true;
   }
-  if (force_shift_sides && !is_caps_word_on()) {
-      if (left_shift_active) {
+  if ((strict_shift && !is_caps_word_on()) || strict_control) {
+      if (left_shift_active || left_control_active) {
           switch (keycode) {
           case KC_1: case KC_2: case KC_3: case KC_4:
           case KC_Q: case KC_W: case KC_E: case KC_R:
           case KC_A: case KC_S: case KC_D: case KC_F:
           case KC_Z: case KC_X: case KC_C: case KC_V:
-              DEBUG("suppressing left key while holding left shift, use right shift instead\n");
+              DEBUG("suppressing left key while holding left shift/control, use right shift/control instead\n");
+              if (record->event.pressed) {
+                  show_error_with_blink = 1;
+                  blink_timer           = timer_read();
+              }
               return false;
           default:
               return true;
           }
       }
-      if (right_shift_active) {
+      if (right_shift_active || right_control_active) {
           switch (keycode) {
           case KC_7: case KC_8: case KC_9: case KC_0: case KC_MINS: case KC_EQL:
           case KC_U: case KC_I: case KC_O: case KC_P: case KC_LBRC: case KC_RBRC:
           case KC_J: case KC_K: case KC_L: case KC_SCLN: case KC_QUOT:
           case KC_M: case KC_COMM: case KC_DOT: case KC_SLSH:
-              DEBUG("suppressing right key while holding right shift, use left shift instead\n");
+              DEBUG("suppressing right key while holding right shift/control, use left shift/control instead\n");
+              if (record->event.pressed) {
+                  show_error_with_blink = 1;
+                  blink_timer           = timer_read();
+              }
               return false;
           default:
               return true;
@@ -179,6 +197,13 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
       uint8_t index = g_led_config.matrix_co[row][col];
 
       if (index >= led_min && index < led_max && index != NO_LED) {
+          if (show_error_with_blink) {
+              if (timer_elapsed(blink_timer) < 100) {
+                  rgb_matrix_set_color(index, 0xFF, 0xFF, 0xFF);
+              } else {
+                  show_error_with_blink = false;
+              }
+          }
         uint16_t layer = layer_switch_get_layer(MAKE_KEYPOS(row, col));
         uint16_t keycode = keymap_key_to_keycode(L_BASE, MAKE_KEYPOS(row, col));
         if (show_layers) {
@@ -210,7 +235,9 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
                 rgb_matrix_set_color(index, RGB_BLUE);
             } else if (keycode == KC_LSFT && host_keyboard_led_state().caps_lock) {
                 rgb_matrix_set_color(index, RGB_BLUE);
-            } else if (keycode == KC_S && force_shift_sides) {
+            } else if (keycode == KC_S && strict_shift) {
+                rgb_matrix_set_color(index, RGB_BLUE);
+            } else if (keycode == KC_C && strict_control) {
                 rgb_matrix_set_color(index, RGB_BLUE);
             }
         }
