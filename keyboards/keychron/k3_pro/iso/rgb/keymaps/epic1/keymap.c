@@ -158,7 +158,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       if (left_shift_active || left_control_active) {
           switch (keycode) {
           case KC_GRV: case KC_1: case KC_2: case KC_3: case KC_4:
-          case KC_Q: case KC_W: case KC_E: case KC_R:
+          case KC_TAB: case KC_Q: case KC_W: case KC_E: case KC_R:
           case KC_A: case KC_S: case KC_D: case KC_F:
           case KC_Z: case KC_X: case KC_C: case KC_V:
               DEBUG("suppressing left key while holding left shift/control, use right shift/control instead\n");
