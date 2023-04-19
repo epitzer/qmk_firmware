@@ -155,7 +155,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   case KC_RCTL: right_control_active = record->event.pressed; return true;
   }
   if ((strict_shift && !is_caps_word_on()) || strict_control) {
-      if (left_shift_active || left_control_active) {
+      if ((strict_shift && left_shift_active) ||
+          (strict_control && left_control_active)) {
           switch (keycode) {
           case KC_GRV: case KC_1: case KC_2: case KC_3: case KC_4:
           case KC_TAB: case KC_Q: case KC_W: case KC_E: case KC_R:
@@ -171,7 +172,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
               return true;
           }
       }
-      if (right_shift_active || right_control_active) {
+      if ((strict_shift && right_shift_active) ||
+          (strict_control && right_control_active)) {
           switch (keycode) {
           case KC_7: case KC_8: case KC_9: case KC_0: case KC_MINS: case KC_EQL:
           case KC_U: case KC_I: case KC_O: case KC_P: case KC_LBRC: case KC_RBRC:
