@@ -25,6 +25,9 @@
 // TODO: blinking LED while recording macro https://docs.qmk.fm/#/feature_dynamic_macros?id=user-hooks
 // TODO: indicate startup complete
 // TODO: accelerate init
+// TODO: typing advisor, save backspaced and overwritten letter pairs
+// TODO: make second `\|' key an additional modifier
+// TODO: temporarily disable keys/combos (similar to windows key lock)
 
 #include QMK_KEYBOARD_H
 #include "print.h"
