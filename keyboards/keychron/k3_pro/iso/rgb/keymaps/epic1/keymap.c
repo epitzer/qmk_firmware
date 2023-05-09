@@ -56,7 +56,8 @@ enum custom_keycodes {
   EP_CMF2 = NEW_SAFE_RANGE, /// Control+Meta+F2
   EP_SHLY, /// show layers
   EP_STSH, /// toggle strict shift
-  EP_STCTL /// toggle strict control
+  EP_STCTL, /// toggle strict control
+  EP_HIST /// type history
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -124,7 +125,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   KC_PWR ,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  KC_SYRQ,  _______,  _______,
   _______,  EM_PLY1,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,
   _______,  EM_REC1,  _______,  _______,  QK_RBT,   _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,
-  _______,  _______,  _______,  EDB_TOG,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,            _______,
+  _______,  _______,  _______,  EDB_TOG,  _______,  _______,  EP_HIST,  _______,  _______,  _______,  _______,  _______,            _______,            _______,
   _______,  _______,  _______,  _______,  _______,  _______,  QK_BOOT,  _______,  _______,  _______,  _______,  _______,            _______,  _______,  _______,
   _______,  _______,  _______,                                _______,                                _______,  _______,  _______,  _______,  _______,  _______),
 };
@@ -143,6 +144,24 @@ static bool strict_control = 0;
 static uint16_t blink_timer = 0;
 static bool show_error_with_blink = false;
 
+static uint16_t key_history[KEY_HISTORY_LENGTH];
+static uint8_t key_history_point = 0;
+
+void add_history(uint16_t keycode) {
+    key_history[key_history_point] = keycode;
+    key_history_point = (key_history_point + 1) % KEY_HISTORY_LENGTH;
+}
+
+void type_history(void) {
+    uint8_t i = (key_history_point + 1 ) % KEY_HISTORY_LENGTH;
+    while (i != key_history_point) {
+        send_string("0x");
+        send_word(key_history[i]);
+        send_string(" ");
+        i = (i + 1) % KEY_HISTORY_LENGTH;
+    }
+}
+
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   DEBUG("KL: kc: 0x%04X, col: %2u, row: %2u, pressed: %u, time: %5u, int: %u, count: %u\n",
          keycode, record->event.key.col, record->event.key.row, record->event.pressed, record->event.time, record->tap.interrupted, record->tap.count);
@@ -152,6 +171,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   case EP_SHLY: if (record->event.pressed) show_layers = !show_layers; return true;
   case EP_STSH: if (record->event.pressed) strict_shift = !strict_shift; return false; // toggle and done
   case EP_STCTL: if (record->event.pressed) strict_control = !strict_control; return false; // toggle and done
+  case EP_HIST: if (record->event.pressed) type_history(); return false; // type history instead and done
   case KC_LSFT: left_shift_active = record->event.pressed; return true;
   case KC_RSFT: right_shift_active = record->event.pressed; return true;
   case KC_LCTL: left_control_active = record->event.pressed; return true;
