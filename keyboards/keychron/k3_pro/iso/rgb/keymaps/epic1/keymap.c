@@ -57,7 +57,9 @@ enum custom_keycodes {
   EP_SHLY, /// show layers
   EP_STSH, /// toggle strict shift
   EP_STCTL, /// toggle strict control
-  EP_HIST /// type history
+  EP_HIST, /// show typing history
+  EP_HTOG, /// toggle keeping typing history
+  EP_HCLR /// clear typing history
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -124,9 +126,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 [L_EXTRA] = LAYOUT_iso_85(
   KC_PWR ,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  KC_SYRQ,  _______,  _______,
   _______,  EM_PLY1,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,
-  _______,  EM_REC1,  _______,  _______,  QK_RBT,   _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,
+  _______,  EM_REC1,  _______,  _______,  QK_RBT,   EP_HTOG,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,
   _______,  _______,  _______,  EDB_TOG,  _______,  _______,  EP_HIST,  _______,  _______,  _______,  _______,  _______,            _______,            _______,
-  _______,  _______,  _______,  _______,  _______,  _______,  QK_BOOT,  _______,  _______,  _______,  _______,  _______,            _______,  _______,  _______,
+  _______,  _______,  _______,  _______,  EP_HCLR,  _______,  QK_BOOT,  _______,  _______,  _______,  _______,  _______,            _______,  _______,  _______,
   _______,  _______,  _______,                                _______,                                _______,  _______,  _______,  _______,  _______,  _______),
 };
 
@@ -140,6 +142,7 @@ static bool left_control_active = 0;
 static bool right_control_active = 0;
 static bool strict_shift = 0;
 static bool strict_control = 0;
+static bool keep_history = 0;
 
 static uint16_t blink_timer = 0;
 static bool show_error_with_blink = false;
@@ -147,17 +150,57 @@ static bool show_error_with_blink = false;
 static uint16_t key_history[KEY_HISTORY_LENGTH];
 static uint8_t key_history_point = 0;
 
-void add_history(uint16_t keycode) {
-    key_history[key_history_point] = keycode;
-    key_history_point = (key_history_point + 1) % KEY_HISTORY_LENGTH;
+void add_history(uint16_t keycode, keyrecord_t *record) {
+    if (keep_history && (keycode < KC_A || keycode > KC_EXSEL || record->event.pressed)) {
+        key_history[key_history_point] = keycode;
+        key_history_point              = (key_history_point + 1) % KEY_HISTORY_LENGTH;
+    }
 }
 
-void type_history(void) {
+void clear_history(void) {
+    for (int i = 0; i < KEY_HISTORY_LENGTH; i++) {
+        key_history[i] = 0;
+    }
+    key_history_point = 0;
+}
+
+void send_readable_keycode(uint16_t keycode) {
+    switch (keycode) {
+    case KC_A ... KC_0 : tap_code(keycode); break;
+    case KC_ENTER: send_string(" [ENTER] "); break;
+    case KC_ESC: send_string(" [ESC] "); break;
+    case KC_BSPC: send_string(" [BSPC] "); break;
+    case KC_TAB: send_string(" [TAB] "); break;
+    case KC_SPACE: send_string(" [SPACE] "); break;
+    case KC_MINUS ... KC_SLASH: tap_code(keycode); break;
+    case KC_CAPS_LOCK: send_string(" [CAPS_LOCK] "); break;
+    case KC_F1 ... KC_F12: send_string(" F"); send_char(keycode-KC_F1+'1'); break;
+    case KC_KP_SLASH ... KC_NONUS_BACKSLASH: tap_code(keycode); break;
+    case KC_LEFT: send_string(" [LEFT] "); break;
+    case KC_RIGHT: send_string(" [RIGHT] "); break;
+    case KC_UP: send_string(" [UP] "); break;
+    case KC_DOWN: send_string(" [DOWN] "); break;
+    case KC_LSFT: send_string(" [L_SHIFT] "); break;
+    case KC_RSFT: send_string(" [R_SHIFT] "); break;
+    case KC_LALT: send_string(" [L_ALT] "); break;
+    case KC_RALT: send_string(" [R_ALT] "); break;
+    case KC_LCTL: send_string(" [L_CTL] "); break;
+    case KC_RCTL: send_string(" [R_CTL] "); break;
+    case KC_LGUI: send_string(" [WIN] "); break;
+    default:
+        send_string(" 0x");
+        send_word(keycode);
+        send_string(" ");
+        break;
+    }
+}
+
+void send_history(void) {
     uint8_t i = (key_history_point + 1 ) % KEY_HISTORY_LENGTH;
     while (i != key_history_point) {
-        send_string("0x");
-        send_word(key_history[i]);
-        send_string(" ");
+        if (key_history[i] > 0) {
+            send_readable_keycode(key_history[i]);
+        }
         i = (i + 1) % KEY_HISTORY_LENGTH;
     }
 }
@@ -165,13 +208,16 @@ void type_history(void) {
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   DEBUG("KL: kc: 0x%04X, col: %2u, row: %2u, pressed: %u, time: %5u, int: %u, count: %u\n",
          keycode, record->event.key.col, record->event.key.row, record->event.pressed, record->event.time, record->tap.interrupted, record->tap.count);
+  add_history(keycode, record);
   switch (keycode) {
       // case EP_CMF2: if (record->event.pressed) SEND_STRING(SS_LCTL(SS_LALT(SS_TAP(X_F2)))); break;
   case KC_SCRL: if (record->event.pressed) is_scroll_lock = !is_scroll_lock; return true;
   case EP_SHLY: if (record->event.pressed) show_layers = !show_layers; return true;
   case EP_STSH: if (record->event.pressed) strict_shift = !strict_shift; return false; // toggle and done
   case EP_STCTL: if (record->event.pressed) strict_control = !strict_control; return false; // toggle and done
-  case EP_HIST: if (record->event.pressed) type_history(); return false; // type history instead and done
+  case EP_HIST: if (record->event.pressed) send_history(); return false; // type history instead and done
+  case EP_HTOG: if (record->event.pressed) keep_history = !keep_history; return false; // toggle and done
+  case EP_HCLR: if (record->event.pressed) clear_history(); return false; // clear history and done
   case KC_LSFT: left_shift_active = record->event.pressed; return true;
   case KC_RSFT: right_shift_active = record->event.pressed; return true;
   case KC_LCTL: left_control_active = record->event.pressed; return true;
@@ -263,6 +309,8 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
             } else if (keycode == KC_S && strict_shift) {
                 rgb_matrix_set_color(index, RGB_BLUE);
             } else if (keycode == KC_C && strict_control) {
+                rgb_matrix_set_color(index, RGB_BLUE);
+            } else if (keycode == KC_H && keep_history) {
                 rgb_matrix_set_color(index, RGB_BLUE);
             }
         }
