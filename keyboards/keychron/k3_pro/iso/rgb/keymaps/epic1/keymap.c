@@ -23,7 +23,7 @@
  */
 
 // TODO: blinking LED while recording macro https://docs.qmk.fm/#/feature_dynamic_macros?id=user-hooks
-// TODO: indicate startup complete
+// DONE: indicate startup complete, already indicated by caps lock light
 // TODO: accelerate init
 // TODO: typing advisor, save backspaced and overwritten letter pairs
 // TODO: make second `\|' key an additional modifier
