@@ -212,6 +212,8 @@ void clear_history(void) {
 }
 
 void send_readable_keycode(uint16_t keycode) {
+    uint16_t mods = get_mods();
+    clear_mods();
     switch (keycode) {
     case KC_A ... KC_0 : tap_code(keycode); break;
     case KC_ENTER: send_string(" [ENTER] "); break;
@@ -240,6 +242,7 @@ void send_readable_keycode(uint16_t keycode) {
         send_string(" ");
         break;
     }
+    set_mods(mods);
 }
 
 void send_history(void) {
