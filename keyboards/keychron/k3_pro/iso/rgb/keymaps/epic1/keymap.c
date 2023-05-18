@@ -53,8 +53,7 @@ enum layers{
 };
 
 enum custom_keycodes {
-  EP_CMF2 = NEW_SAFE_RANGE, /// Control+Meta+F2
-  EP_SHLY, /// show layers
+  EP_SHLY = NEW_SAFE_RANGE, /// show layers
   EP_STSH, /// toggle strict shift
   EP_STCTL, /// toggle strict control
   EP_HIST, /// show typing history
@@ -268,7 +267,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
          keycode, record->event.key.col, record->event.key.row, record->event.pressed, record->event.time, record->tap.interrupted, record->tap.count);
   add_history(keycode, record);
   switch (keycode) {
-      // case EP_CMF2: if (record->event.pressed) SEND_STRING(SS_LCTL(SS_LALT(SS_TAP(X_F2)))); break;
   case KC_SCRL: if (record->event.pressed) is_scroll_lock = !is_scroll_lock; return true;
   case EP_SHLY: if (record->event.pressed) show_layers = !show_layers; return true;
   case EP_STSH: if (record->event.pressed) strict_shift = !strict_shift; return false; // toggle and done
