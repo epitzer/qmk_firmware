@@ -58,7 +58,6 @@ enum custom_keycodes {
   EP_STSH, /// toggle strict shift
   EP_STCTL, /// toggle strict control
   EP_HIST, /// show typing history
-  EP_HTOG, /// toggle keeping typing history
   EP_HCLR /// clear typing history
 };
 
@@ -126,7 +125,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 [L_EXTRA] = LAYOUT_iso_85(
   KC_PWR ,  _______,  _______,  _______,  _______,  KC_BRID,  KC_BRIU,  _______,  _______,  _______,  _______,  _______,  _______,  KC_SYRQ,  _______,  _______,
   _______,  EM_PLY1,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,
-  _______,  EM_REC1,  _______,  _______,  QK_RBT,   EP_HTOG,  _______,  _______,  _______,  KO_TOGG,  _______,  _______,  _______,  _______,            _______,
+  _______,  EM_REC1,  _______,  _______,  QK_RBT,   _______,  _______,  _______,  _______,  KO_TOGG,  _______,  _______,  _______,  _______,            _______,
   _______,  _______,  _______,  EDB_TOG,  _______,  _______,  EP_HIST,  _______,  _______,  _______,  _______,  _______,            _______,            _______,
   _______,  _______,  _______,  _______,  EP_HCLR,  _______,  QK_BOOT,  _______,  QK_MAKE,  _______,  _______,  _______,            _______,  _______,  _______,
   _______,  _______,  _______,                                _______,                                _______,  _______,  _______,  _______,  _______,  _______),
@@ -254,6 +253,16 @@ void send_history(void) {
     }
 }
 
+void control_history(void) {
+    if (get_mods() & MOD_MASK_CTRL) {
+        clear_history();
+    } else if (get_mods() & MOD_MASK_SHIFT) {
+        send_history();
+    } else {
+        keep_history = !keep_history;
+    }
+}
+
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   DEBUG("KL: kc: 0x%04X, col: %2u, row: %2u, pressed: %u, time: %5u, int: %u, count: %u\n",
          keycode, record->event.key.col, record->event.key.row, record->event.pressed, record->event.time, record->tap.interrupted, record->tap.count);
@@ -264,8 +273,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   case EP_SHLY: if (record->event.pressed) show_layers = !show_layers; return true;
   case EP_STSH: if (record->event.pressed) strict_shift = !strict_shift; return false; // toggle and done
   case EP_STCTL: if (record->event.pressed) strict_control = !strict_control; return false; // toggle and done
-  case EP_HIST: if (record->event.pressed) send_history(); return false; // type history instead and done
-  case EP_HTOG: if (record->event.pressed) keep_history = !keep_history; return false; // toggle and done
+  case EP_HIST: if (record->event.pressed) control_history(); return false; // type history instead and done
   case EP_HCLR: if (record->event.pressed) clear_history(); return false; // clear history and done
   case KC_LSFT: left_shift_active = record->event.pressed; return true;
   case KC_RSFT: right_shift_active = record->event.pressed; return true;
