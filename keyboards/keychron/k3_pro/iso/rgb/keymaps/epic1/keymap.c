@@ -126,29 +126,78 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 [L_EXTRA] = LAYOUT_iso_85(
   KC_PWR ,  _______,  _______,  _______,  _______,  KC_BRID,  KC_BRIU,  _______,  _______,  _______,  _______,  _______,  _______,  KC_SYRQ,  _______,  _______,
   _______,  EM_PLY1,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,
-  _______,  EM_REC1,  _______,  _______,  QK_RBT,   EP_HTOG,  _______,  _______,  _______,  _______,  _______,  _______,  _______,  _______,            _______,
+  _______,  EM_REC1,  _______,  _______,  QK_RBT,   EP_HTOG,  _______,  _______,  _______,  KO_TOGG,  _______,  _______,  _______,  _______,            _______,
   _______,  _______,  _______,  EDB_TOG,  _______,  _______,  EP_HIST,  _______,  _______,  _______,  _______,  _______,            _______,            _______,
   _______,  _______,  _______,  _______,  EP_HCLR,  _______,  QK_BOOT,  _______,  QK_MAKE,  _______,  _______,  _______,            _______,  _______,  _______,
   _______,  _______,  _______,                                _______,                                _______,  _______,  _______,  _______,  _______,  _______),
 };
 
-
 // clang-format on
-static bool is_scroll_lock = 0;
-static bool show_layers = 0;
-static bool left_shift_active = 0;
-static bool right_shift_active = 0;
-static bool left_control_active = 0;
-static bool right_control_active = 0;
-static bool strict_shift = 0;
-static bool strict_control = 0;
-static bool keep_history = 0;
+const key_override_t backtick_o = ko_make_with_layers_and_negmods(0, KC_GRV, S(KC_EQL), ~0, MOD_MASK_SHIFT);
+const key_override_t tilde_o    = ko_make_basic(MOD_MASK_SHIFT, KC_GRV, ALGR(KC_RBRC));
+const key_override_t at_o       = ko_make_basic(MOD_MASK_SHIFT, KC_2, ALGR(KC_Q));
+const key_override_t hash_o     = ko_make_basic(MOD_MASK_SHIFT, KC_3, KC_BSLS);
+const key_override_t circ_o     = ko_make_basic(MOD_MASK_SHIFT, KC_6, KC_GRV);
+const key_override_t amp_o      = ko_make_basic(MOD_MASK_SHIFT, KC_7, S(KC_6));
+const key_override_t ast_o      = ko_make_basic(MOD_MASK_SHIFT, KC_8, S(KC_RBRC));
+const key_override_t lparen_o   = ko_make_basic(MOD_MASK_SHIFT, KC_9, S(KC_8));
+const key_override_t rparen_o   = ko_make_basic(MOD_MASK_SHIFT, KC_0, S(KC_9));
+const key_override_t minus_o    = ko_make_basic(0, KC_MINS, KC_SLSH);
+const key_override_t equals_o   = ko_make_with_layers_and_negmods(0, KC_EQL, S(KC_0), ~0, MOD_MASK_SHIFT);
+const key_override_t plus_o     = ko_make_basic(MOD_MASK_SHIFT, KC_EQL, KC_RBRC);
 
-static uint16_t blink_timer = 0;
-static bool show_error_with_blink = false;
+const key_override_t y_o             = ko_make_basic(0, KC_Y, KC_Z);
+const key_override_t left_bracket_o  = ko_make_with_layers_and_negmods(0, KC_LBRC, ALGR(KC_8), ~0, MOD_MASK_SHIFT);
+const key_override_t right_bracket_o = ko_make_with_layers_and_negmods(0, KC_RBRC, ALGR(KC_9), ~0, MOD_MASK_SHIFT);
+const key_override_t left_brace_o    = ko_make_basic(MOD_MASK_SHIFT, KC_LBRC, ALGR(KC_7));
+const key_override_t right_brace_o   = ko_make_basic(MOD_MASK_SHIFT, KC_RBRC, ALGR(KC_0));
+
+const key_override_t semicolon_o   = ko_make_with_layers_and_negmods(0, KC_SCLN, S(KC_COMM), ~0, MOD_MASK_SHIFT);
+const key_override_t quote_o       = ko_make_with_layers_and_negmods(0, KC_QUOT, S(KC_BSLS), ~0, MOD_MASK_SHIFT);
+const key_override_t backslash_o   = ko_make_with_layers_and_negmods(0, KC_BSLS, ALGR(KC_MINS), ~0, MOD_MASK_SHIFT);
+const key_override_t colon_o       = ko_make_basic(MOD_MASK_SHIFT, KC_SCLN, S(KC_DOT));
+const key_override_t doublequote_o = ko_make_basic(MOD_MASK_SHIFT, KC_QUOT, S(KC_2));
+const key_override_t pipe_o        = ko_make_basic(MOD_MASK_SHIFT, KC_BSLS, ALGR(KC_NUBS));
+
+const key_override_t slash_o        = ko_make_with_layers_and_negmods(0, KC_SLSH, S(KC_7), ~0, MOD_MASK_SHIFT);
+const key_override_t z_o            = ko_make_basic(0, KC_Z, KC_Y);
+const key_override_t lt_o           = ko_make_basic(MOD_MASK_SHIFT, KC_COMM, KC_NUBS);
+const key_override_t gt_o           = ko_make_basic(MOD_MASK_SHIFT, KC_DOT, S(KC_NUBS));
+const key_override_t questionmark_o = ko_make_basic(MOD_MASK_SHIFT, KC_SLSH, S(KC_MINS));
+
+const key_override_t ae_o = ko_make_basic(MOD_BIT(KC_RALT), KC_A, KC_QUOT);
+const key_override_t oe_o = ko_make_basic(MOD_BIT(KC_RALT), KC_O, KC_SCLN);
+const key_override_t ue_o = ko_make_basic(MOD_BIT(KC_RALT), KC_U, KC_LBRC);
+const key_override_t ss_o = ko_make_basic(MOD_BIT(KC_RALT), KC_S, KC_MINS);
+
+const key_override_t **key_overrides = (const key_override_t *[]) {
+  &backtick_o, &tilde_o, &at_o, &hash_o, &circ_o, &amp_o, &ast_o, &lparen_o, &rparen_o, &minus_o, &equals_o, &plus_o,
+  &y_o, &left_bracket_o, &right_bracket_o, &left_brace_o, &right_brace_o,
+  &semicolon_o, &quote_o, &backslash_o, &colon_o, &doublequote_o, &pipe_o,
+  &slash_o, &z_o, &lt_o, &gt_o, &questionmark_o,
+  &ae_o, &oe_o, &ue_o, &ss_o,
+  NULL
+};
+
+void keyboard_post_init_user(void) {
+    key_override_off();
+}
+
+static bool is_scroll_lock       = 0;
+static bool show_layers          = 0;
+static bool left_shift_active    = 0;
+static bool right_shift_active   = 0;
+static bool left_control_active  = 0;
+static bool right_control_active = 0;
+static bool strict_shift         = 0;
+static bool strict_control       = 0;
+static bool keep_history         = 0;
+
+static uint16_t blink_timer           = 0;
+static bool     show_error_with_blink = false;
 
 static uint16_t key_history[KEY_HISTORY_LENGTH];
-static uint8_t key_history_point = 0;
+static uint8_t  key_history_point = 0;
 
 void add_history(uint16_t keycode, keyrecord_t *record) {
     if (keep_history && (keycode < KC_A || keycode > KC_EXSEL || record->event.pressed)) {
@@ -289,30 +338,25 @@ bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
                 (keycode == KC_8 && layer_state_is(8)))
               rgb_matrix_set_color(index, RGB_GREEN);
         }
-            switch (layer) {
-          case L_MAC_BASE | L_MAC_FN: rgb_matrix_set_color(index, RGB_WHITE); break; // i.e. wrong layer ;-)
-          case L_FN: rgb_matrix_set_color(index, 0xFF, 0x00, 0x40); break;
-          case L_EXTRA: rgb_matrix_set_color(index, 0x40, 0x00, 0xFF); break;
-          case L_MOUSE: rgb_matrix_set_color(index, 0x00, 0xFF, 0x00); break;
-          case L_NAV: rgb_matrix_set_color(index, 0xFF, 0xFF, 0xFF); break;
-          case L_NUMP: rgb_matrix_set_color(index, 0xFF, 0xFF, 0xFF); break;
-          case L_BASE: // fall through
-          default: // show indicators
-            if ((keycode == KC_LSFT || keycode == KC_RSFT) && is_caps_word_on()) {
-                rgb_matrix_set_color(index, RGB_BLUE);
-            } else if (keycode == KC_N && host_keyboard_led_state().num_lock) {
-                rgb_matrix_set_color(index, RGB_BLUE);
-            } else if (keycode == KC_PSCR && (is_scroll_lock || host_keyboard_led_state().scroll_lock)) {
-                rgb_matrix_set_color(index, RGB_BLUE);
-            } else if (keycode == KC_LSFT && host_keyboard_led_state().caps_lock) {
-                rgb_matrix_set_color(index, RGB_BLUE);
-            } else if (keycode == KC_S && strict_shift) {
-                rgb_matrix_set_color(index, RGB_BLUE);
-            } else if (keycode == KC_C && strict_control) {
-                rgb_matrix_set_color(index, RGB_BLUE);
-            } else if (keycode == KC_H && keep_history) {
-                rgb_matrix_set_color(index, RGB_BLUE);
-            }
+        switch (layer) {
+        case L_MAC_BASE | L_MAC_FN: rgb_matrix_set_color(index, RGB_WHITE); break; // i.e. wrong layer ;-)
+        case L_FN: rgb_matrix_set_color(index, 0xFF, 0x00, 0x40); break;
+        case L_EXTRA: rgb_matrix_set_color(index, 0x40, 0x00, 0xFF); break;
+        case L_MOUSE: rgb_matrix_set_color(index, 0x00, 0xFF, 0x00); break;
+        case L_NAV: rgb_matrix_set_color(index, 0xFF, 0xFF, 0xFF); break;
+        case L_NUMP: rgb_matrix_set_color(index, 0xFF, 0xFF, 0xFF); break;
+        case L_BASE: // fall through
+        default: // show indicators
+          if (((keycode == KC_LSFT || keycode == KC_RSFT) && is_caps_word_on()) ||
+              (keycode == KC_N && host_keyboard_led_state().num_lock) ||
+              (keycode == KC_PSCR && (is_scroll_lock || host_keyboard_led_state().scroll_lock)) ||
+              (keycode == KC_LSFT && host_keyboard_led_state().caps_lock) ||
+              (keycode == KC_S && strict_shift) ||
+              (keycode == KC_C && strict_control) ||
+              (keycode == KC_H && keep_history) ||
+              (keycode == KC_O && key_override_is_enabled())) {
+            rgb_matrix_set_color(index, RGB_BLUE);
+          }
         }
       }
     }

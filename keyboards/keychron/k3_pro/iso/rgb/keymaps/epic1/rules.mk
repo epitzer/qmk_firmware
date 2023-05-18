@@ -3,6 +3,7 @@
 # DYNAMIC_MACRO_ENABLE = yes
 EPIC_MACRO_ENABLE = yes
 MOUSEKEY_ENABLE = yes
+KEY_OVERRIDE_ENABLE = yes
 # LTO_ENABLE = yes # produces warning
 # COMBO_ENABLE = yes
 CAPS_WORD_ENABLE = yes
